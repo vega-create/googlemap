@@ -25,9 +25,6 @@ export default function RootLayout({
             <Link href="/posts" className="text-gray-700 hover:text-blue-600 font-medium">
               📋 發布紀錄
             </Link>
-            <Link href="/guide" className="text-gray-700 hover:text-blue-600 font-medium">
-              ❓ 使用說明
-            </Link>
           </div>
         </nav>
         {children}
