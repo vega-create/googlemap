@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 export default function GBPPost() {
   const [content, setContent] = useState('')
-  const [imageUrl, setImageUrl] = useState('')
+  const [imageUrls, setImageUrls] = useState<string[]>([])
   const [cta, setCta] = useState('')
   const [link, setLink] = useState('')
   const [loading, setLoading] = useState(false)
@@ -11,20 +11,33 @@ export default function GBPPost() {
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null)
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
     
     setUploading(true)
-    const formData = new FormData()
-    formData.append('file', file)
     
-    const res = await fetch('/api/upload', {
-      method: 'POST',
-      body: formData,
-    })
-    const data = await res.json()
-    setImageUrl(data.url)
+    const uploadedUrls: string[] = []
+    
+    for (const file of Array.from(files)) {
+      const formData = new FormData()
+      formData.append('file', file)
+      
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      if (data.url) {
+        uploadedUrls.push(data.url)
+      }
+    }
+    
+    setImageUrls(prev => [...prev, ...uploadedUrls])
     setUploading(false)
+  }
+
+  const removeImage = (index: number) => {
+    setImageUrls(prev => prev.filter((_, i) => i !== index))
   }
 
   const handleSubmit = async () => {
@@ -33,14 +46,14 @@ export default function GBPPost() {
     const res = await fetch('/api/gbp-post', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content, imageUrl, cta, link }),
+      body: JSON.stringify({ content, imageUrls, cta, link }),
     })
     const data = await res.json()
     
     if (data.status === 'success') {
       setResult({ success: true, message: '發布成功！' })
       setContent('')
-      setImageUrl('')
+      setImageUrls([])
       setCta('')
       setLink('')
     } else {
@@ -74,12 +87,13 @@ export default function GBPPost() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                圖片
+                圖片（可多選）
               </label>
               <div className="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center hover:border-blue-400 transition">
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={handleUpload}
                   className="hidden"
                   id="file-upload"
@@ -87,16 +101,30 @@ export default function GBPPost() {
                 <label htmlFor="file-upload" className="cursor-pointer">
                   {uploading ? (
                     <p className="text-blue-500">上傳中...</p>
-                  ) : imageUrl ? (
-                    <img src={imageUrl} alt="預覽" className="max-h-48 mx-auto rounded-lg" />
                   ) : (
                     <div className="py-4">
                       <span className="text-4xl">🖼️</span>
-                      <p className="text-gray-500 mt-2">點擊上傳圖片</p>
+                      <p className="text-gray-500 mt-2">點擊上傳圖片（可多選）</p>
                     </div>
                   )}
                 </label>
               </div>
+              
+              {imageUrls.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 mt-3">
+                  {imageUrls.map((url, index) => (
+                    <div key={index} className="relative">
+                      <img src={url} alt={`圖片 ${index + 1}`} className="w-full h-24 object-cover rounded-lg" />
+                      <button
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 text-sm hover:bg-red-600"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
             
             <div className="grid grid-cols-2 gap-4">
