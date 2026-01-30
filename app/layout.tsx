@@ -1,3 +1,5 @@
+import './globals.css'
+
 export const metadata = {
   title: 'GBP 發文工具',
 }
@@ -9,7 +11,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-TW">
-      <body>{children}</body>
+      <body className="bg-gray-50 min-h-screen">{children}</body>
     </html>
   )
 }
