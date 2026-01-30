@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
-  const { content, imageUrl, cta, link } = await req.json()
+  const { content, imageUrls, cta, link } = await req.json()
 
   const response = await fetch('https://api.ayrshare.com/api/post', {
     method: 'POST',
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({
       post: content,
       platforms: ['gmb'],
-      mediaUrls: imageUrl ? [imageUrl] : [],
+      mediaUrls: imageUrls && imageUrls.length > 0 ? imageUrls : undefined,
       gmbOptions: cta && link ? {
         callToActionType: cta,
         callToActionUrl: link,
