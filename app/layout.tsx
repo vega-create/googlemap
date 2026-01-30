@@ -5,7 +5,7 @@ import Link from 'next/link'
 export const metadata: Metadata = {
   title: '社群發文工具',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/icon.svg',
   },
 }
 
@@ -24,6 +24,9 @@ export default function RootLayout({
             </Link>
             <Link href="/posts" className="text-gray-700 hover:text-blue-600 font-medium">
               📋 發布紀錄
+            </Link>
+            <Link href="/guide" className="text-gray-700 hover:text-blue-600 font-medium">
+              ❓ 使用說明
             </Link>
           </div>
         </nav>
