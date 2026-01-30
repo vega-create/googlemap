@@ -9,20 +9,22 @@ const supabase = createClient(
 export async function POST(req: NextRequest) {
   const formData = await req.formData()
   const file = formData.get('file') as File
-  
+
   const fileName = `${Date.now()}-${file.name}`
-  
+
   const { data, error } = await supabase.storage
     .from('gbp-images')
-    .upload(fileName, file)
-  
+    .upload(fileName, file, {
+      contentType: file.type,
+    })
+
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
-  
+
   const { data: urlData } = supabase.storage
     .from('gbp-images')
     .getPublicUrl(fileName)
-  
+
   return NextResponse.json({ url: urlData.publicUrl })
 }
